@@ -1,0 +1,152 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Pelanggan extends CI_Controller
+{
+    function __construct()
+    {
+        parent::__construct();
+        $this->load->model('Pelanggan_model');
+        $this->load->library('form_validation');        
+	$this->load->library('datatables');
+    }
+
+    public function index()
+    {
+            $this->load->view('template/header');
+            $this->load->view('pelanggan/pelanggan_list');
+            $this->load->view('template/footer');
+    } 
+    
+    public function json() {
+        header('Content-Type: application/json');
+        echo $this->Pelanggan_model->json();
+    }
+
+    public function read($id) 
+    {
+        $row = $this->Pelanggan_model->get_by_id($id);
+        if ($row) {
+            $data = array(
+		'id_pelanggan' => $row->id_pelanggan,
+		'nama_pelanggan' => $row->nama_pelanggan,
+		'no_telp' => $row->no_telp,
+		'status' => $row->status,
+	    );
+            $this->load->view('template/header');
+            $this->load->view('pelanggan/pelanggan_read', $data);
+            $this->load->view('template/footer');
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('pelanggan'));
+        }
+    }
+
+    public function create() 
+    {
+        $data = array(
+            'button' => 'Create',
+            'action' => site_url('pelanggan/create_action'),
+	    'id_pelanggan' => set_value('id_pelanggan'),
+	    'nama_pelanggan' => set_value('nama_pelanggan'),
+	    'no_telp' => set_value('no_telp'),
+	    'status' => set_value('status'),
+	);
+            $this->load->view('template/header');
+            $this->load->view('pelanggan/pelanggan_form', $data);
+            $this->load->view('template/footer');
+    }
+    
+    public function create_action() 
+    {
+        $this->_rules();
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->create();
+        } else {
+            $data = array(
+		'nama_pelanggan' => $this->input->post('nama_pelanggan',TRUE),
+		'no_telp' => $this->input->post('no_telp',TRUE),
+		'status' => $this->input->post('status',TRUE),
+	    );
+
+            $this->Pelanggan_model->insert($data);
+            $this->session->set_flashdata('message', 'Create Record Success');
+            redirect(site_url('pelanggan'));
+        }
+    }
+    
+    public function update($id) 
+    {
+        $row = $this->Pelanggan_model->get_by_id($id);
+
+        if ($row) {
+            $data = array(
+                'button' => 'Update',
+                'action' => site_url('pelanggan/update_action'),
+		'id_pelanggan' => set_value('id_pelanggan', $row->id_pelanggan),
+		'nama_pelanggan' => set_value('nama_pelanggan', $row->nama_pelanggan),
+		'no_telp' => set_value('no_telp', $row->no_telp),
+		'status' => set_value('status', $row->status),
+	    );
+            $this->load->view('template/header');
+            $this->load->view('pelanggan/pelanggan_form', $data);
+            $this->load->view('template/footer');
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('pelanggan'));
+        }
+    }
+    
+    public function update_action() 
+    {
+        $this->_rules();
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->update($this->input->post('id_pelanggan', TRUE));
+        } else {
+            $data = array(
+		'nama_pelanggan' => $this->input->post('nama_pelanggan',TRUE),
+		'no_telp' => $this->input->post('no_telp',TRUE),
+		'status' => $this->input->post('status',TRUE),
+	    );
+
+            $this->Pelanggan_model->update($this->input->post('id_pelanggan', TRUE), $data);
+            $this->session->set_flashdata('message', 'Update Record Success');
+            redirect(site_url('pelanggan'));
+        }
+    }
+    
+    public function delete($id) 
+    {
+        $row = $this->Pelanggan_model->get_by_id($id);
+
+        if ($row) {
+            $this->Pelanggan_model->delete($id);
+            $this->session->set_flashdata('message', 'Delete Record Success');
+            redirect(site_url('pelanggan'));
+        } else {
+            $this->session->set_flashdata('message', 'Record Not Found');
+            redirect(site_url('pelanggan'));
+        }
+    }
+
+    public function _rules() 
+    {
+	$this->form_validation->set_rules('nama_pelanggan', 'nama pelanggan', 'trim|required');
+	$this->form_validation->set_rules('no_telp', 'no telp', 'trim|required');
+	$this->form_validation->set_rules('status', 'status', 'trim|required');
+
+	$this->form_validation->set_rules('id_pelanggan', 'id_pelanggan', 'trim');
+	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+    }
+
+}
+
+/* End of file Pelanggan.php */
+/* Location: ./application/controllers/Pelanggan.php */
+/* Please DO NOT modify this information : */
+/* Generated by Harviacode Codeigniter CRUD Generator 2023-01-09 04:33:07 */
+/* http://harviacode.com */
